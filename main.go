@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"project/main/users"
 )
 
 // type Reqinfo struct {
@@ -10,10 +11,10 @@ import (
 // 	Request_email string
 // }
 
-type User struct {
-	Email    string
-	Password string
-}
+// type User struct {
+// 	Email    string
+// 	Password string
+// }
 
 func main() {
 
@@ -32,7 +33,7 @@ func main() {
 	// 	}
 	// })
 	http.HandleFunc("/", userHandler)
-	http.ListenAndServe(":8880", nil)
+	http.ListenAndServe("", nil)
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,17 +51,37 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func signInUser(w http.ResponseWriter, r *http.Request) {
-
+	newUser := getUser(r)
+	ok := users.DefaultUserService.VerifyUser(newUser)
+	if !ok {
+		fileName := "sign-in.html"
+		t, _ := template.ParseFiles(fileName)
+		t.ExecuteTemplate(w, fileName, "User Sign-in Failure")
+		return
+	}
+	fileName := "sign-in.html"
+	t, _ := template.ParseFiles(fileName)
+	t.ExecuteTemplate(w, fileName, "User Sign-in Success")
+	return
 }
 
 func signUpUser(w http.ResponseWriter, r *http.Request) {
-
+	newUser := getUser(r)
+	err := users.DefaultUserService.CreateUser(newUser)
+	if err != nil {
+		fileName := "sign-up.html"
+		t, _ := template.ParseFiles(fileName)
+		t.ExecuteTemplate(w, fileName, "New User Sign-up Failure")
+	}
+	fileName := "sign-up.html"
+	t, _ := template.ParseFiles(fileName)
+	t.ExecuteTemplate(w, fileName, "New User Sign-up Success")
 }
 
-func getUser(r *http.Request) User {
+func getUser(r *http.Request) users.User {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-	return User{
+	return users.User{
 		Email:    email,
 		Password: password,
 	}
