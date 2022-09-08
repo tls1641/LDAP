@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	BindUsername = "CN=admin,DC=trustnhope,DC=com"
+	BindUsername = "CN=admin,DC=int,DC=trustnhope,DC=com"
 	BindPassword = "admin"
-	FQDN         = "localhost:389" //"192.168.163.129:389" //"20.196.153.228:3389"
-	BaseDN       = "dc=trustnhope,dc=com"
-	Filter       = "(cn=admin)"
+	FQDN         = "118.67.131.11:3000" //"192.168.163.129:389" //"20.196.153.228:3389"
+	BaseDN       = "dc=int,dc=trustnhope,dc=com"
+	Filter       = "(&(objectclass=inetOrgPerson)(gidNumber=1000))"
 )
 
 func addEntries() {
@@ -107,7 +107,7 @@ func AnonymousBindAndSearch(l *ldap.Conn) (*ldap.SearchResult, error) {
 }
 
 // Normal Bind and Search
-func BindAndSearch(l *ldap.Conn) (*ldap.SearchResult, error) {
+func BindAndSearch(l *ldap.Conn, filter string) (*ldap.SearchResult, error) {
 	l.Bind(BindUsername, BindPassword)
 
 	searchReq := ldap.NewSearchRequest(
@@ -117,7 +117,7 @@ func BindAndSearch(l *ldap.Conn) (*ldap.SearchResult, error) {
 		0,
 		0,
 		false,
-		Filter,
+		filter,
 		[]string{},
 		nil,
 	)

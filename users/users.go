@@ -3,6 +3,9 @@ package users
 import (
 	"errors"
 	"fmt"
+	"reflect"
+
+	"project/main/ldapServer"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -23,15 +26,23 @@ type userService struct {
 }
 
 func (userService) VerifyUser(user User) bool {
-	authUser, ok := authUserDB[user.Email]
-	if !ok {
+	fmt.Println(user)
+	l, err := ldapServer.ConnectTLS()
+	if err != nil {
 		return false
 	}
-	err := bcrypt.CompareHashAndPassword(
-		[]byte(authUser.passwordHash),
-		[]byte(user.Password))
-	return err == nil
-
+	filter := "(uid=" + user.Email + ")"
+	result, err2 := ldapServer.BindAndSearch(l, filter)
+	if err2 != nil {
+		return false
+	}
+	result.Entries[0].Print()
+	fmt.Println(reflect.TypeOf(*result.Entries[0].Attributes[8]))
+	// err3 := bcrypt.CompareHashAndPassword(
+	// 	[]byte(authUser.passwordHash),
+	// 	[]byte(user.Password))
+	// return err3 == nil
+	return true
 }
 
 var authUserDB = map[string]authUser{}

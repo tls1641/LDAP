@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
+	"log"
 	"net/http"
+	"project/main/ldapServer"
 	"project/main/users"
 )
 
@@ -32,6 +35,12 @@ func main() {
 	// 		json.NewEncoder(wr).Encode(user_info)
 	// 	}
 	// })
+	l, err := ldapServer.ConnectTLS()
+	if err != nil {
+		log.Fatal("connect", err)
+	}
+	fmt.Println(l)
+
 	http.HandleFunc("/", userHandler)
 	http.ListenAndServe("", nil)
 }
