@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 	"project/main/ldapServer"
+	"project/main/ldapServer/Services"
 	"project/main/ldapServer/Users"
+
 )
 
 // type Reqinfo struct {
@@ -39,10 +41,19 @@ func main() {
 		log.Fatal("connect", err)
 	}
 	fmt.Println(l)
+
+
+	// http.HandleFunc("/", userHandler)
+
+	// Services.CreateNewService("medic-app")
+	// Services.AddServiceHospitalMember("c00040","medic-app")
+	// Services.RemoveServiceHostpitalMember("c00040","medic-app")
+
 	// Users.CreateUser("Mr.", "testperson3", "1234", "uid=person3,ou=t00002,ou=hospitals,dc=int,dc=trustnhope,dc=com")
 	// Users.ReadUserDN("t00002", "person3")
-	Users.ReadUserMember("uid=hiosi,ou=t00001,ou=hospitals,dc=int,dc=trustnhope,dc=com")
+	// Users.ReadUserMember("uid=hiosi,ou=t00001,ou=hospitals,dc=int,dc=trustnhope,dc=com")
 	// http.HandleFunc("/", userHandler)
+
 	http.ListenAndServe("", nil)
 }
 
@@ -62,13 +73,18 @@ func main() {
 
 // func signInUser(w http.ResponseWriter, r *http.Request) {
 // 	newUser := getUser(r)
+
 // 	ok := userLog.DefaultUserService.VerifyUser(newUser)
+
 // 	if !ok {
 // 		fileName := "sign-in.html"
 // 		t, _ := template.ParseFiles(fileName)
 // 		t.ExecuteTemplate(w, fileName, "User Sign-in Failure")
 // 		return
 // 	}
+
+// 	fmt.Println("로그인 성공")
+
 // 	fileName := "sign-in.html"
 // 	t, _ := template.ParseFiles(fileName)
 // 	t.ExecuteTemplate(w, fileName, "User Sign-in Success")
@@ -77,21 +93,29 @@ func main() {
 
 // func signUpUser(w http.ResponseWriter, r *http.Request) {
 // 	newUser := getUser(r)
+
 // 	err := userLog.DefaultUserService.CreateUser(newUser)
+
 // 	if err != nil {
 // 		fileName := "sign-up.html"
 // 		t, _ := template.ParseFiles(fileName)
 // 		t.ExecuteTemplate(w, fileName, "New User Sign-up Failure")
 // 	}
+
+// 	fmt.Println("회원가입 성공")
+
+
 // 	fileName := "sign-up.html"
 // 	t, _ := template.ParseFiles(fileName)
 // 	t.ExecuteTemplate(w, fileName, "New User Sign-up Success")
 // }
 
+
 // func getUser(r *http.Request) userLog.User {
 // 	email := r.FormValue("email")
 // 	password := r.FormValue("password")
 // 	return userLog.User{
+
 // 		Email:    email,
 // 		Password: password,
 // 	}
