@@ -1,11 +1,8 @@
-package users
+package userLog
 
 import (
 	"errors"
 	"fmt"
-	"reflect"
-
-	"project/main/ldapServer"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,25 +22,25 @@ var DefaultUserService userService
 type userService struct {
 }
 
-func (userService) VerifyUser(user User) bool {
-	fmt.Println(user)
-	l, err := ldapServer.ConnectTLS()
-	if err != nil {
-		return false
-	}
-	filter := "(uid=" + user.Email + ")"
-	result, err2 := ldapServer.BindAndSearch(l, filter)
-	if err2 != nil {
-		return false
-	}
-	result.Entries[0].Print()
-	fmt.Println(reflect.TypeOf(*result.Entries[0].Attributes[8]))
-	// err3 := bcrypt.CompareHashAndPassword(
-	// 	[]byte(authUser.passwordHash),
-	// 	[]byte(user.Password))
-	// return err3 == nil
-	return true
-}
+// func (userService) VerifyUser(user User) bool {
+// 	fmt.Println(user)
+// 	l, err := ldapServer.ConnectTLS()
+// 	if err != nil {
+// 		return false
+// 	}
+// 	filter := "(uid=" + user.Email + ")"
+// 	result, err2 := ldapServer.BindAndSearch(l, filter)
+// 	if err2 != nil {
+// 		return false
+// 	}
+// 	result.Entries[0].Print()
+// 	fmt.Println(reflect.TypeOf(*result.Entries[0].Attributes[8]))
+// 	// err3 := bcrypt.CompareHashAndPassword(
+// 	// 	[]byte(authUser.passwordHash),
+// 	// 	[]byte(user.Password))
+// 	// return err3 == nil
+// 	return true
+// }
 
 var authUserDB = map[string]authUser{}
 
