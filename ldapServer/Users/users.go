@@ -86,6 +86,7 @@ func UpdateUser() {
 	if err != nil {
 		log.Fatal("connect", err)
 	}
+	fmt.Println(l)
 
 }
 

@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"project/main/ldapServer"
 	"project/main/ldapServer/Services"
-	"project/main/ldapServer/Users"
-
 )
 
 // type Reqinfo struct {
@@ -45,9 +43,11 @@ func main() {
 
 	// http.HandleFunc("/", userHandler)
 
-	// Services.CreateNewService("medic-app")
-	// Services.AddServiceHospitalMember("c00040","medic-app")
-	// Services.RemoveServiceHostpitalMember("c00040","medic-app")
+	Services.ReadHospitalList("medic-k")
+	//Services.CreateNewService("medic-app")
+	//Services.DeleteService("medic-app")
+	//Services.AddServiceHospitalMember("7","medic")
+	//Services.RemoveServiceHostpitalMember("7","medic")
 
 	// Users.CreateUser("Mr.", "testperson3", "1234", "uid=person3,ou=t00002,ou=hospitals,dc=int,dc=trustnhope,dc=com")
 	// Users.ReadUserDN("t00002", "person3")
