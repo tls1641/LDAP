@@ -2,6 +2,7 @@ package ldapServer
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -21,31 +22,23 @@ func Add(addRequest *ldap.AddRequest, l *ldap.Conn) {
 		fmt.Println("Entry DONE", err)
 	}
 }
-func ConnectTLS() (*ldap.Conn, error) {
-	// You can also use IP instead of FQDN
-	l, err := ldap.Dial("tcp", FQDN)
-	if err != nil {
-		return nil, err
-	}
 
-	return l, nil
+func Modify(modifyRequest * ldap.ModifyRequest, l *ldap.Conn) {
+	err := l.Modify(modifyRequest)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-// Ldap Connection without TLS
-func Connect() (*ldap.Conn, error) {
-	// You can also use IP instead of FQDN
-	l, err := ldap.Dial("tcp", FQDN)
-	if err != nil {
-		return nil, err
+func Delete(deleteRequest *ldap.DelRequest, l *ldap.Conn) {
+	err := l.Del(deleteRequest)
+		if err != nil {
+		log.Fatal(err)
 	}
-
-	return l, nil
 }
 
 // Normal Bind and Search
-func BindAndSearch(l *ldap.Conn, BaseDN string, filter string) (*ldap.SearchResult, error) {
-	l.Bind(BindUsername, BindPassword)
-
+func Search(l *ldap.Conn, BaseDN string, filter string) (*ldap.SearchResult, error) {
 	searchReq := ldap.NewSearchRequest(
 		BaseDN,
 		ldap.ScopeWholeSubtree, // you can also use ldap.ScopeWholeSubtree
@@ -67,5 +60,40 @@ func BindAndSearch(l *ldap.Conn, BaseDN string, filter string) (*ldap.SearchResu
 	} else {
 		return nil, fmt.Errorf("Couldn't fetch search entries")
 	}
+}
 
+func ConnectTLS() (*ldap.Conn, error) {
+	// You can also use IP instead of FQDN
+	l, err := ldap.Dial("tcp", FQDN)
+	if err != nil {
+		return nil, err
+	}
+
+	return l, nil
+}
+
+// Ldap Connection without TLS
+func Connect() (*ldap.Conn, error) {
+	// You can also use IP instead of FQDN
+	l, err := ldap.Dial("tcp", FQDN)
+	if err != nil {
+		return nil, err
+	}
+
+	return l, nil
+}
+
+func DialAndBind(bindUsername string, bindPassword string) (l *ldap.Conn, err error) {
+	l, dialError := ldap.Dial("tcp", FQDN)
+	if dialError != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	err = l.Bind(bindUsername, bindPassword)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	return l, nil
 }

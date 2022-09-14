@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"project/main/ldapServer"
 
+
 	"github.com/gorilla/mux"
+
 )
 
 // type Reqinfo struct {
@@ -83,15 +85,18 @@ func main() {
 	fmt.Println(l)
 
 	// http.HandleFunc("/", userHandler)
-
-	// Services.CreateNewService("medic-app")
-	// Services.AddServiceHospitalMember("c00040","medic-app")
-	// Services.RemoveServiceHostpitalMember("c00040","medic-app")
+	//Services.ReadHospitalList("hiosk")
+	//Services.CreateNewService("medic-app")
+	//Services.AddServiceHospitalMember("c00047","medic")
+	//Services.RemoveServiceHostpitalMember("c00047","medic")
 
 	// Users.CreateUser("Mr.", "testperson3", "1234", "tls1641", "t00002")
 	// Users.ReadUserDN("t00002", "person3")
 	// Users.ReadUserMember("uid=hiosi,ou=t00001,ou=hospitals,dc=int,dc=trustnhope,dc=com")
-	// Users.UpdateUser("person5", "t00002", "test5", "changedtest5")
+
+	//Users.UpdateUser("person5", "t00002", "test5", "changedtest5")
+
+
 	// Users.DeleteUser("person10", "t00002")
 	// http.HandleFunc("/", userHandler)
 	// Hospitals.CreateHospital("t00003")
