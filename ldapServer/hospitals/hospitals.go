@@ -45,7 +45,7 @@ func ReadHospitalMember(ou string) {
 		log.Fatal("connect", err)
 	}
 
-	result, err := ldapServer.BindAndSearch(l, BaseDN, filter)
+	result, err := ldapServer.Search(l, BaseDN, filter)
 	if err != nil {
 		log.Fatal(err)
 	}

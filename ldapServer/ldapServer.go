@@ -14,26 +14,34 @@ const (
 
 )
 
-func Add(addRequest *ldap.AddRequest, l *ldap.Conn) {
+func Add(addRequest *ldap.AddRequest, l *ldap.Conn) (string, error) {
 	err := l.Add(addRequest)
 	if err != nil {
 		fmt.Println("Entry NOT done", err)
+		return "fail", fmt.Errorf("Add Error: %s", err)
 	} else {
 		fmt.Println("Entry DONE", err)
+		return "ok", nil
 	}
 }
 
-func Modify(modifyRequest * ldap.ModifyRequest, l *ldap.Conn) {
+func Modify(modifyRequest * ldap.ModifyRequest, l *ldap.Conn)  (string, error) {
 	err := l.Modify(modifyRequest)
 	if err != nil {
 		log.Fatal(err)
+		return "fail", fmt.Errorf("Modify Error: %s", err)
+	}else{
+		return "ok", nil
 	}
 }
 
-func Delete(deleteRequest *ldap.DelRequest, l *ldap.Conn) {
+func Delete(deleteRequest *ldap.DelRequest, l *ldap.Conn)  (string, error) {
 	err := l.Del(deleteRequest)
 		if err != nil {
 		log.Fatal(err)
+		return "fail", fmt.Errorf("Delete Error: %s", err)
+	}else{
+		return "ok", nil
 	}
 }
 

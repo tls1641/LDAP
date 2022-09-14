@@ -50,7 +50,7 @@ func ReadUserDN(baseDN string, uid string) (string, string) {
 		log.Fatal("connect", err)
 	}
 
-	result, err := ldapServer.BindAndSearch(l, BaseDN, filter)
+	result, err := ldapServer.Search(l, BaseDN, filter)
 	if err != nil {
 		log.Fatal(err)
 		return "err", err.Error()
@@ -68,7 +68,7 @@ func ReadUserMember(dn string) []interface{} {
 		log.Fatal("connect", err)
 	}
 
-	result, err := ldapServer.BindAndSearch(l, BaseDN, filter)
+	result, err := ldapServer.Search(l, BaseDN, filter)
 	if err != nil {
 		log.Fatal(err)
 	}
