@@ -5,9 +5,7 @@ import (
 	"log"
 	"net/http"
 	"project/main/ldapServer"
-	"project/main/ldapServer/Services"
 	"project/main/ldapServer/Users"
-
 )
 
 // type Reqinfo struct {
@@ -42,16 +40,17 @@ func main() {
 	}
 	fmt.Println(l)
 
-
 	// http.HandleFunc("/", userHandler)
 
 	// Services.CreateNewService("medic-app")
 	// Services.AddServiceHospitalMember("c00040","medic-app")
 	// Services.RemoveServiceHostpitalMember("c00040","medic-app")
 
-	// Users.CreateUser("Mr.", "testperson3", "1234", "uid=person3,ou=t00002,ou=hospitals,dc=int,dc=trustnhope,dc=com")
+	// Users.CreateUser("Mr.", "testperson3", "1234", "tls1641", "t00002")
 	// Users.ReadUserDN("t00002", "person3")
 	// Users.ReadUserMember("uid=hiosi,ou=t00001,ou=hospitals,dc=int,dc=trustnhope,dc=com")
+	Users.UpdateUser("person5", "t00002", "test5", "changedtest5")
+	// Users.DeleteUser("person10", "t00002")
 	// http.HandleFunc("/", userHandler)
 
 	http.ListenAndServe("", nil)
@@ -104,12 +103,10 @@ func main() {
 
 // 	fmt.Println("회원가입 성공")
 
-
 // 	fileName := "sign-up.html"
 // 	t, _ := template.ParseFiles(fileName)
 // 	t.ExecuteTemplate(w, fileName, "New User Sign-up Success")
 // }
-
 
 // func getUser(r *http.Request) userLog.User {
 // 	email := r.FormValue("email")
