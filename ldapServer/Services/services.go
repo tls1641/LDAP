@@ -3,6 +3,7 @@ package Services
 import (
 	"fmt"
 	"log"
+	"project/main/ldapServer"
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -75,15 +76,7 @@ func CreateNewService(servicename string) {
 	a.Attribute("member", []string{""})
 	a.Attribute("objectClass", []string{"top", "groupOfNames"})
 	fmt.Println("Testing.")
-	add(a, l)
-}
-func add(addRequest *ldap.AddRequest, l *ldap.Conn) {
-	err := l.Add(addRequest)
-	if err != nil {
-		fmt.Println("Entry NOT done", err)
-	} else {
-		fmt.Println("Entry DONE", err)
-	}
+	ldapServer.Add(a, l)
 }
 
 // 서비스 구독중인 병원 추가
