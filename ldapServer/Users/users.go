@@ -25,7 +25,6 @@ func CreateUser(sn string, cn string, pw string, uid string, hospitalCode string
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer l.Close()
 
 	err = l.Bind(BindUsername, BindPassword)
 	if err != nil {

@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 	"project/main/ldapServer"
-	"project/main/ldapServer/Users"
+
+	"github.com/gorilla/mux"
 )
 
 // type Reqinfo struct {
@@ -17,6 +18,47 @@ import (
 // 	Email    string
 // 	Password string
 // }
+
+type Student struct {
+	Id    int
+	Name  string
+	Age   int
+	Score int
+}
+
+var students map[int]Student
+var lastId int
+
+func MakeWebHandler() http.Handler {
+	mux := mux.NewRouter()
+	mux.HandleFunc("/students", GetStudentListHandler).Methods("GET")
+
+	students = make(map[int]Student)
+	students[1] = Student{1, "aaa", 16, 87}
+	students[2] = Student{2, "bbb", 18, 98}
+	lastId = 2
+
+	return mux
+}
+
+type Students []Student
+
+func (s Students) Len() int {
+	return len(s)
+}
+func (s Students) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s Students) Less(i, j int) bool {
+	return s[i].Id < s[j].Id
+}
+
+func GetStudentListHandler(w http.ResponseWriter, r *http.Request) {
+	list := make(Students, 0)
+	for _, student := range students {
+		list = append(list, student)
+	}
+}
 
 func main() {
 
@@ -49,11 +91,12 @@ func main() {
 	// Users.CreateUser("Mr.", "testperson3", "1234", "tls1641", "t00002")
 	// Users.ReadUserDN("t00002", "person3")
 	// Users.ReadUserMember("uid=hiosi,ou=t00001,ou=hospitals,dc=int,dc=trustnhope,dc=com")
-	Users.UpdateUser("person5", "t00002", "test5", "changedtest5")
+	// Users.UpdateUser("person5", "t00002", "test5", "changedtest5")
 	// Users.DeleteUser("person10", "t00002")
 	// http.HandleFunc("/", userHandler)
+	// Hospitals.CreateHospital("t00003")
+	// Hospitals.DeleteHospitalMember("t00003")
 
-	http.ListenAndServe("", nil)
 }
 
 // func userHandler(w http.ResponseWriter, r *http.Request) {
