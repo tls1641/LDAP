@@ -53,7 +53,9 @@ func CreateNewService(servicename string) {
 	a.Attribute("cn", []string{servicename})
 	a.Attribute("member", []string{""})
 	a.Attribute("objectClass", []string{"top", "groupOfNames"})
+
 	fmt.Println("Testing.",l)
+
 	ldapServer.Add(a, l)
 }
 
