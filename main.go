@@ -1,14 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"project/main/ldapServer"
-
-
-	"github.com/gorilla/mux"
-
+	"time"
 )
 
 // type Reqinfo struct {
@@ -21,45 +19,37 @@ import (
 // 	Password string
 // }
 
-type Student struct {
-	Id    int
-	Name  string
-	Age   int
-	Score int
+type User struct {
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-var students map[int]Student
-var lastId int
+type fooHandler struct{}
 
-func MakeWebHandler() http.Handler {
-	mux := mux.NewRouter()
-	mux.HandleFunc("/students", GetStudentListHandler).Methods("GET")
-
-	students = make(map[int]Student)
-	students[1] = Student{1, "aaa", 16, 87}
-	students[2] = Student{2, "bbb", 18, 98}
-	lastId = 2
-
-	return mux
-}
-
-type Students []Student
-
-func (s Students) Len() int {
-	return len(s)
-}
-func (s Students) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s Students) Less(i, j int) bool {
-	return s[i].Id < s[j].Id
-}
-
-func GetStudentListHandler(w http.ResponseWriter, r *http.Request) {
-	list := make(Students, 0)
-	for _, student := range students {
-		list = append(list, student)
+func (f *fooHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	user := new(User)
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Bad Request:", err)
+		return
 	}
+	user.CreatedAt = time.Now()
+
+	data, _ := json.Marshal(user)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(data))
+}
+
+func barHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		name = "World"
+	}
+	fmt.Fprintf(w, "Hello %s!", name)
+
 }
 
 func main() {
@@ -90,17 +80,28 @@ func main() {
 	//Services.AddServiceHospitalMember("c00047","medic")
 	//Services.RemoveServiceHostpitalMember("c00047","medic")
 
-	// Users.CreateUser("Mr.", "testperson3", "1234", "tls1641", "t00002")
+	// Users.CreateUser("Mr.", "testperson3", "1234", "tls16411", "t00002")
 	// Users.ReadUserDN("t00002", "person3")
-	// Users.ReadUserMember("uid=hiosi,ou=t00001,ou=hospitals,dc=int,dc=trustnhope,dc=com")
+	// Users.ReadUserMember("hiosi", "t00001")
 
 	//Users.UpdateUser("person5", "t00002", "test5", "changedtest5")
-
 
 	// Users.DeleteUser("person10", "t00002")
 	// http.HandleFunc("/", userHandler)
 	// Hospitals.CreateHospital("t00003")
 	// Hospitals.DeleteHospitalMember("t00003")
+
+	//절대 경로
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "Hello World!")
+	})
+	mux.HandleFunc("/bar", barHandler)
+
+	mux.Handle("/foo", &fooHandler{})
+
+	http.ListenAndServe(":3000", mux)
 
 }
 
