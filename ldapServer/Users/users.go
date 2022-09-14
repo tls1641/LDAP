@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"project/main/ldapServer"
-	"reflect"
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -12,24 +11,18 @@ import (
 const (
 	BindUsername = "CN=admin,DC=int,DC=trustnhope,DC=com"
 	BindPassword = "admin"
-	IP           = "118.67.131.11:3000" //"192.168.163.129:389" //"20.196.153.228:3389"
 )
 
 // 유저 추가
-func CreateUser(sn string, cn string, pw string, uid string, hospitalCode string) bool {
+func CreateUser(sn string, cn string, pw string, uid string, hospitalCode string) string {
 	dn := "uid=" + uid + ",ou=" + hospitalCode + ",ou=hospitals,dc=int,dc=trustnhope,dc=com"
 	fmt.Println("create user")
 
-	l, err := ldap.Dial("tcp", IP)
+	l, err := ldapServer.DialAndBind(BindUsername, BindPassword)
 
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	err = l.Bind(BindUsername, BindPassword)
-	if err != nil {
-		log.Fatal(err)
-		return false
+		return err.Error()
 	}
 
 	a := ldap.NewAddRequest(dn, nil)
@@ -39,15 +32,16 @@ func CreateUser(sn string, cn string, pw string, uid string, hospitalCode string
 	a.Attribute("userPassword", []string{pw})
 
 	ldapServer.Add(a, l)
-	return true
+	return "success" + uid
 }
 
 func ReadUserDN(baseDN string, uid string) (string, string) {
 	filter := "(uid=" + uid + ")"
 	BaseDN := "ou=" + baseDN + ",ou=hospitals,dc=int,dc=trustnhope,dc=com"
-	l, err := ldapServer.ConnectTLS()
+	l, err := ldapServer.DialAndBind(BindUsername, BindPassword)
 	if err != nil {
-		log.Fatal("connect", err)
+		log.Fatal(err)
+		return "err", err.Error()
 	}
 
 	result, err := ldapServer.Search(l, BaseDN, filter)
@@ -55,39 +49,41 @@ func ReadUserDN(baseDN string, uid string) (string, string) {
 		log.Fatal(err)
 		return "err", err.Error()
 	}
-
+	fmt.Println(result.Entries[0].DN, result.Entries[0].GetAttributeValue("cn"))
 	return result.Entries[0].DN, result.Entries[0].GetAttributeValue("cn")
 }
 
-func ReadUserMember(dn string) []interface{} {
-	filter := "(member=" + dn + ")"
+func ReadUserMember(uid string, ou string) ([]string, string) {
+	filter := "(member=uid=" + uid + ",ou=" + ou + ",ou=hospitals,dc=int,dc=trustnhope,dc=com)"
 	BaseDN := "dc=int,dc=trustnhope,dc=com"
 
-	l, err := ldapServer.ConnectTLS()
+	l, err := ldapServer.DialAndBind(BindUsername, BindPassword)
 	if err != nil {
-		log.Fatal("connect", err)
+		log.Fatal(err)
+		return nil, err.Error()
 	}
 
 	result, err := ldapServer.Search(l, BaseDN, filter)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err.Error()
 	}
 
-	var departments = make([]any, len(result.Entries))
+	var departments = make([]string, len(result.Entries))
 	for i := 0; i < len(result.Entries); i++ {
 		// fmt.Println(*result.Entries[i])
-		departments[i] = result.Entries[i].GetAttributeValue("cn")
+		departments[i] = result.Entries[i].DN
 	}
-	fmt.Println(reflect.TypeOf(departments[1]))
+	fmt.Println(departments)
 	// return departments
-	return departments
+	return departments, ""
 }
 
 func UpdateUser(originalUid string, hospitalCode string, sn string, cn string) (bool, string) {
 
-	l, err := ldapServer.ConnectTLS()
+	l, err := ldapServer.DialAndBind(BindUsername, BindPassword)
 	if err != nil {
-		log.Fatal("connect", err)
+		log.Fatal(err)
 		return false, err.Error()
 	}
 	fmt.Println(l)
@@ -118,14 +114,11 @@ func UpdateUser(originalUid string, hospitalCode string, sn string, cn string) (
 }
 
 func DeleteUser(uid string, hospitalCode string) (bool, string) {
-	l, err := ldapServer.ConnectTLS()
+	l, err := ldapServer.DialAndBind(BindUsername, BindPassword)
 	if err != nil {
-		log.Fatal("connect", err)
+		log.Fatal(err)
 		return false, err.Error()
 	}
-	fmt.Println(l)
-
-	l.Bind(BindUsername, BindPassword)
 
 	delete := ldap.NewDelRequest("uid="+uid+",ou="+hospitalCode+",ou=hospitals,dc=int,dc=trustnhope,dc=com", nil)
 
