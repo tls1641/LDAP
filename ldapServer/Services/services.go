@@ -1,7 +1,6 @@
 package Services
 
 import (
-	"fmt"
 	"log"
 	"project/main/ldapServer"
 
@@ -13,7 +12,6 @@ const (
 	BindPassword = "admin"
 	FQDN         = "118.67.131.11:3000" //"192.168.163.129:389" //"20.196.153.228:3389"
 	BaseDN       = "dc=int,dc=trustnhope,dc=com"
-	Filter       = "(&(objectclass=inetOrgPerson)(gidNumber=1000))"
 )
 
 // 서비스 구독중인 병원 목록 조회(필요가 있을까??)
@@ -35,17 +33,16 @@ func ReadHospitalList(servicename string) ([]string, error) {
 	if searchError != nil {
 		return []string{}, searchError
 	}
-	fmt.Println(s.Entries[0].GetAttributeValues("member"))
 	return s.Entries[0].GetAttributeValues("member"), nil
 }
 
 // 신규 서비스 등록
-func CreateNewService(servicename string) {
+func CreateNewService(servicename string) (string, error) {
 	l, err := ldapServer.DialAndBind(BindUsername,BindPassword)
 
 	if err != nil {
 		log.Fatal(err)
-		return
+		return "fail", err
 	}
 
 	//Create new Add request object to be added to LDAP server.
@@ -54,18 +51,23 @@ func CreateNewService(servicename string) {
 	a.Attribute("member", []string{""})
 	a.Attribute("objectClass", []string{"top", "groupOfNames"})
 
-	fmt.Println("Testing.",l)
+	addResult, addError := ldapServer.Add(a, l)
 
-	ldapServer.Add(a, l)
+	if addError != nil {
+		log.Fatal(addError)
+		return addResult, addError
+	}else{
+		return addResult, nil
+	}
 }
 
 // 서비스 구독중인 병원 추가
-func AddServiceHospitalMember(hospitalCode string, servicename string) {
+func AddServiceHospitalMember(hospitalCode string, servicename string) (string, error) {
 	l, err := ldapServer.DialAndBind(BindUsername,BindPassword)
 
 	if err != nil {
 		log.Fatal(err)
-		return
+		return "fail", err
 	}
 
 	m := ldap.NewModifyRequest("cn="+servicename+",ou=services,dc=int,dc=trustnhope,dc=com", nil)
@@ -77,7 +79,7 @@ func AddServiceHospitalMember(hospitalCode string, servicename string) {
 
 	if searchError != nil {
 		log.Fatal(searchError)
-		return
+		return "fail", searchError
 	}
 
 	vals := s.Entries[0].GetAttributeValues("member")
@@ -87,16 +89,21 @@ func AddServiceHospitalMember(hospitalCode string, servicename string) {
 		m.Add("member", []string{"ou=" + hospitalCode + ",ou=hospitals,dc=int,dc=trustnhope,dc=com"})
 	}
 
-	ldapServer.Modify(m,l)
+	modifyResult, modifyError := ldapServer.Modify(m,l)
+	if modifyError != nil {
+		return modifyResult, modifyError
+	}else{
+		return modifyResult, nil
+	}
 }
 
 // 서비스 구독 해지:: 서비스 목록에서 병원 member 삭제
-func RemoveServiceHostpitalMember(hospitalCode string, servicename string) {
+func RemoveServiceHostpitalMember(hospitalCode string, servicename string) (string, error) {
 	l, err := ldapServer.DialAndBind(BindUsername,BindPassword)
 
 	if err != nil {
 		log.Fatal(err)
-		return
+		return "fail", err
 	}
 
 	m := ldap.NewModifyRequest("cn="+servicename+",ou=services,dc=int,dc=trustnhope,dc=com", nil)
@@ -107,7 +114,7 @@ func RemoveServiceHostpitalMember(hospitalCode string, servicename string) {
 	)
 
 	if searchError != nil {
-		return
+		return "fail", searchError
 	}
 	vals := s.Entries[0].GetAttributeValues("member")
 	if len(vals) == 1 {
@@ -116,19 +123,29 @@ func RemoveServiceHostpitalMember(hospitalCode string, servicename string) {
 		m.Delete("member", []string{"ou=" + hospitalCode + ",ou=hospitals,dc=int,dc=trustnhope,dc=com"})
 	}
 
-	ldapServer.Modify(m,l)
+	modifyResult, modifyError := ldapServer.Modify(m,l)
+	if modifyError != nil {
+		return modifyResult, modifyError
+	}else{
+		return modifyResult, nil
+	}
 }
 
 // 서비스 삭제(엔트리 자체를 삭제)
-func DeleteService(servicename string) {
+func DeleteService(servicename string) (string, error) {
 	l, err := ldapServer.DialAndBind(BindUsername,BindPassword)
 	if err != nil {
 		log.Fatal(err)
-		return
+		return "fail", err
 	}
 
 	d := ldap.NewDelRequest("cn="+servicename+",ou=services,dc=int,dc=trustnhope,dc=com", nil)
-	ldapServer.Delete(d, l)
+	deleteResult, DeleteError := ldapServer.Delete(d, l)
+	if DeleteError != nil {
+		return deleteResult, DeleteError
+	}else{
+		return deleteResult, nil
+	}
 }
 
 
